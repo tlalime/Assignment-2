@@ -1,0 +1,50 @@
+rankall <- function(outcome, num = "best")  {
+  setwd("C:/Users/Thomas Lalime/Desktop/R")
+  ## Read outcome data
+  
+  thom <- read.csv("outcome-of-care-measures.csv", colClasses = "character")
+  thom[, 11] <- as.numeric(thom[, 11])
+  thom[, 17] <- as.numeric(thom[, 17])
+  thom[, 23] <- as.numeric(thom[, 23])
+  
+  #subset data for my function
+  tes=thom[,c(2,7,11,17,23)]
+  names(tes)[3] <- "heart attack"
+  names(tes)[4] <- "heart failure"
+  names(tes)[5] <- "pneumonia"
+  
+  #change character in numeric for num
+  
+  
+  if(length(str_subset(outcome,names(tes))) >0) {
+    
+    
+    tes1=tes[,c(1,2,which(names(tes)==outcome))] 
+    names(tes1)[3] <- "a"
+    tesa= data.table(tes1) 
+    
+    
+    
+    num1=ifelse(num=="worst" || num=="best" ,1,num)
+    
+    if (num=="worst" ){
+      ss = tesa[, rang:=frank(-a,ties.method = 'first',na.last = "keep"), by=State]
+    } else  {
+      ss = tesa[, rang:=frank(a,ties.method = 'first',na.last = "keep"), by=State]
+    }
+    
+    
+    
+    tt= ss[which(ss$rang==num1),c(1,2,4)] 
+    sort2.tt <- with(tt, tt[order(tt$rang, tt$State, tt$Hospital.Name) , ])
+    sort2.tt1 <- sort2.tt[,c(1,2)] 
+    
+    
+    #return(ss)
+    return(sort2.tt1)
+    
+    
+  }  else if(length(str_subset(outcome,names(tes)))  == 0) stop(cat("invalid outcome"))
+  
+  
+}
